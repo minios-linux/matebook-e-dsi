@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Linux i915 driver / MateBook E DSI patches
+Source: https://kernel.org/ and https://aur.archlinux.org/matebook-e-dsi-dkms.git
+Files: *
+Copyright: Linux kernel contributors (see in-file notices); hockinglee and contributors
+License: GPL-2.0-only
+ See /usr/share/common-licenses/GPL-2.

@@ -1,0 +1,18 @@
+Source: matebook-e-dsi
+Section: kernel
+Priority: optional
+Maintainer: crims0n <crims0n@minios.dev>
+Build-Depends: debhelper-compat (= 13), dh-sequence-dkms
+Standards-Version: 4.7.2
+Rules-Requires-Root: no
+Homepage: https://bbs.archlinux.org/viewtopic.php?id=303555
+
+Package: matebook-e-dsi-dkms
+Architecture: all
+Depends: dkms (>= 3.0.11), ${misc:Depends}
+Description: experimental i915 DSI backport for Huawei MateBook E 2023
+ Experimental replacement i915 driver sources with DSI patches for
+ Huawei MateBook E 2023 dual-link OLED under Debian Linux 6.12.107.
+ .
+ Hardware operation has not yet been validated. Sleep, DPMS and built-in
+ panel operation require on-device testing.

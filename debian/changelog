@@ -1,0 +1,7 @@
+matebook-e-dsi (0.0.1-1minios1) unstable; urgency=medium
+
+  * Finish DSI/VBT/DSC source backport to the Linux 6.12 driver.
+  * Remove DKMS kernel version restriction; build against installed headers.
+  * Enable DKMS automatic builds so the package is testable after installation.
+
+ -- crims0n <crims0n@minios.dev>  Sat, 10 Oct 2026 20:35:00 +0300

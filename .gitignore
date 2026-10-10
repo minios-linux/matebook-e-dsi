@@ -1,0 +1,17 @@
+work/
+upstream-aur/
+*.ko
+*.o
+*.cmd
+*.mod*
+*.symvers
+modules.order
+/debian/.debhelper/
+/debian/debhelper-build-stamp
+/debian/files
+/debian/*.debhelper.log
+/debian/*.debhelper
+/debian/*.substvars
+/debian/*.postinst.debhelper
+/debian/*.prerm.debhelper
+/debian/matebook-e-dsi-dkms/
