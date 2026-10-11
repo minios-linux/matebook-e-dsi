@@ -61,8 +61,36 @@ mask the result. For MiniOS live images, include the new module in a rebuilt
 kernel layer/boot image. Keep the previous boot image as a fallback.
 
 After a cold boot, inspect the OLED with static and moving content. Compare
-the DSC debug state with the old values: the table branch should populate
-`rc_edge_factor` and `rc_tgt_offset` with the DSC defaults instead of zero.
+the DSC debug state with the old values: for this panel the table branch
+changes `first_line_bpg_offset` from 14 to 12 and `initial_dec_delay` from
+1004 to 897. The dumped `rc_edge_factor` and `rc_tgt_offset` fields remain
+zero in this implementation; they are not a reliable branch-selection check.
 Record a photo and the kernel journal. Then test DPMS separately, followed
 by S3 and S4. None of these acceptance results is claimed by the source or
 build verification above.
+
+## Device follow-up: residual update artifacts
+
+The user tested the correction and reported a large reduction in noise,
+with residual transient bands during redraw. They disappear when the image
+stops changing and occur mainly in the lower portion of the screen.
+SSH diagnostics confirmed the table-derived RC values above, hardware
+acceleration with Mesa Intel Iris Xe, and the native 2560x1600 mode.
+
+A runtime FBC comparison set
+`/sys/kernel/debug/dri/0/i915_params/enable_fbc` from 1 to 0. The user
+reported that bands persisted. The parameter was restored to 1.
+
+Next, Xfce composition was temporarily disabled through
+`xfconf-query -c xfwm4 -p /general/use_compositing -s false`.
+The user subsequently re-enabled composition and reported no bands.
+Readback confirmed composition enabled, `vblank_mode=auto`, FBC enabled
+and compressing, and unchanged software DSC/mode configuration. The primary
+framebuffer ID changed from 269 in the earlier capture to 272 in the clean
+capture, with the same format, modifier and dimensions.
+
+This is an observed recovery after a composition cycle, not proof that
+composition itself is faulty or that the driver is fully fixed. Buffer
+replacement and redraw synchronization remain hypotheses. Reproduction
+after a cold boot and DPMS is needed to determine whether the residual
+problem returns. No permanent compositor workaround has been added.
