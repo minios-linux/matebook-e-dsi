@@ -1,0 +1,32 @@
+--- a/drivers/gpu/drm/i915/display/intel_vdsc.c
++++ b/drivers/gpu/drm/i915/display/intel_vdsc.c
+@@ -259,6 +259,15 @@
+ 	return 0;
+ }
+ 
++static bool is_dsi_dsc_1_1(const struct intel_crtc_state *crtc_state)
++{
++	const struct drm_dsc_config *vdsc_cfg = &crtc_state->dsc.config;
++
++	return vdsc_cfg->dsc_version_major == 1 &&
++		vdsc_cfg->dsc_version_minor == 1 &&
++		intel_crtc_has_type(crtc_state, INTEL_OUTPUT_DSI);
++}
++
+ int intel_dsc_compute_params(struct intel_crtc_state *pipe_config)
+ {
+ 	struct intel_crtc *crtc = to_intel_crtc(pipe_config->uapi.crtc);
+@@ -312,8 +321,12 @@
+ 	 * From XE_LPD onwards we supports compression bpps in steps of 1
+ 	 * upto uncompressed bpp-1, hence add calculations for all the rc
+ 	 * parameters
++	 *
++	 * DSI DSC 1.1 panels can have PPS parameters hardcoded in the VBT.
++	 * Interpolated RC parameters differ from those expected by the panel
++	 * and cause display noise. Use the predefined tables, as in Linux 7.2.
+ 	 */
+-	if (DISPLAY_VER(dev_priv) >= 13) {
++	if (DISPLAY_VER(dev_priv) >= 13 && !is_dsi_dsc_1_1(pipe_config)) {
+ 		calculate_rc_params(vdsc_cfg);
+ 	} else {
+ 		if ((compressed_bpp == 8 ||
