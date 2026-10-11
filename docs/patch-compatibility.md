@@ -10,7 +10,59 @@ The resulting i915 module compiles against
 package also succeeded. DKMS automatic builds are enabled without a
 kernel-version exclusion.
 
-Hardware behavior and newer Linux 6.12 revisions have not been tested.
-Compilation alone does not validate OLED, DPMS or suspend operation.
+The 0.0.1 package also built and installed through DKMS for 6.12.111 in the
+MiniOS image build. The user reports a working image with horizontal colored
+noise on the physical MateBook. Compilation alone does not validate OLED,
+DPMS or suspend operation.
 The isolated DKMS build could not sign the module because the host's MOK
 private key was inaccessible; Secure Boot deployment requires signing.
+
+## Colored-noise investigation, 2026-10-11
+
+The current AUR repository is at commit `41ef40f`. Its patch is byte-identical
+to `patches/upstream-7.2.3.patch`. The main DSI additions and splitter masks
+are present in the 6.12 port, with API and formatting adaptations.
+
+However, porting that patch alone omits a fix already in its base kernel:
+Linux commit [`c63d00e388f2`](https://github.com/torvalds/linux/commit/c63d00e388f2240c732bf1c89dc48bc8ff98089d),
+"drm/i915/vdsc: Use the DSC config tables for DSI panels". It selects the
+predefined RC tables instead of interpolating RC parameters for DSI DSC 1.1
+panels. Upstream explains that some panels have hardcoded PPS parameters and
+that differing interpolated parameters cause display noise.
+
+Read-only SSH diagnostics on `matebook-e-64` confirmed:
+
+- Linux `6.12.111+deb13-amd64`, Alder Lake-UP4 GPU `8086:46aa`, BIOS 1.29;
+- replacement i915 at `/lib/modules/6.12.111+deb13-amd64/updates/dkms/i915.ko`;
+- no `nomodeset` in the boot command line;
+- DSI DSC 1.1, 8 bpc, 8 compressed bpp, 2560x1600, two 1280x40 slices;
+- the old source takes `calculate_rc_params()` on this display version;
+- kernel state verification reports picture width 2560 vs 1280 and split
+  enabled vs disabled, alongside timing differences.
+
+Version 0.0.2 backports the RC table condition, in both the shipped source and
+`patches/dsi-dsc-1.1-rc-params.patch`. `prepare-source.sh` applies it after
+the initial backport. Other output types and DSC versions retain their
+existing RC selection. Full external-module development builds passed in
+the persistent Trixie amd64 container for 6.12.107 and 6.12.111.
+
+The split/width warning is a separate readout issue: 6.12 infers two DSC
+engines from `RIGHT_BRANCH_VDSC_ENABLE && JOINER_ENABLE`, whereas the AUR
+fix deliberately clears JOINER for DSI. It does not by itself prove that
+only one engine was programmed. Keep this warning visible while validating
+the RC correction; it has not been suppressed.
+
+### Device acceptance for the RC correction
+
+Install the newly versioned package with matching kernel headers and check
+that DKMS completes. Rebuild the boot initramfs through the system's normal
+boot-image mechanism before rebooting, so an old early-loaded i915 does not
+mask the result. For MiniOS live images, include the new module in a rebuilt
+kernel layer/boot image. Keep the previous boot image as a fallback.
+
+After a cold boot, inspect the OLED with static and moving content. Compare
+the DSC debug state with the old values: the table branch should populate
+`rc_edge_factor` and `rc_tgt_offset` with the DSC defaults instead of zero.
+Record a photo and the kernel journal. Then test DPMS separately, followed
+by S3 and S4. None of these acceptance results is claimed by the source or
+build verification above.
