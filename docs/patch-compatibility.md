@@ -94,3 +94,23 @@ composition itself is faulty or that the driver is fully fixed. Buffer
 replacement and redraw synchronization remain hypotheses. Reproduction
 after a cold boot and DPMS is needed to determine whether the residual
 problem returns. No permanent compositor workaround has been added.
+
+## Physical panel size: Xorg loses the KMS dimensions
+
+On `matebook-e-64`, a direct `DRM_IOCTL_MODE_GETCONNECTOR` query for
+connector 241 returns `mm_width=271`, `mm_height=170`. The i915 debugfs
+connector dump agrees. The DSI EDID blob is empty, while Xrandr reports
+`0mm x 0mm`. Thus i915 exports the physical size correctly through the DRM
+userspace ABI; it is not a missing panel-size fix in the kernel backport.
+
+The running X server is `2:21.1.16-1.3+deb13u4`, using the modesetting DDX.
+In the corresponding Xorg 21.1.16 source, `drmmode_output_init()` copies the
+KMS dimensions into `output->mm_width/mm_height`. Later,
+`drmmode_output_get_modes()` calls `xf86OutputSetEDID(output, NULL)` for
+this EDID-less panel. That function clears both dimensions, and the
+modesetting DDX does not restore the KMS values after the call.
+
+The user requested that Xorg remain unchanged. A driver-side compatibility
+solution would expose a synthetic EDID derived from the VBT fixed mode and
+its physical dimensions. Existing connector dimensions alone cannot fix
+the Xorg reset described above. No synthetic EDID has been implemented yet.
