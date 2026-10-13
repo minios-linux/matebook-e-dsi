@@ -2,7 +2,7 @@ Source: matebook-e-dsi
 Section: kernel
 Priority: optional
 Maintainer: crims0n <crims0n@minios.dev>
-Build-Depends: debhelper-compat (= 13), dh-sequence-dkms
+Build-Depends: debhelper-compat (= 13), dh-sequence-dkms, gcc, python3
 Standards-Version: 4.7.2
 Rules-Requires-Root: no
 Homepage: https://bbs.archlinux.org/viewtopic.php?id=303555

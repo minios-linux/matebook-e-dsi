@@ -6,5 +6,7 @@ export DEB_VERSION_UPSTREAM
 override_dh_dkms:
 	dh_dkms -V$(DEB_VERSION_UPSTREAM)
 override_dh_auto_build:
+override_dh_auto_test:
+	python3 -m unittest discover -s tests -v
 override_dh_auto_clean:
 override_dh_auto_install:
