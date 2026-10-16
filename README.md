@@ -23,4 +23,9 @@ The Debian package uses standard `dh_dkms`; a full isolated DKMS build has passe
 
 ## Kernel support
 
-No version exclusion rule is used by DKMS. The shipped i915 tree is derived from Linux 6.12.107. Compilation of the corrected source has been verified against 6.12.107 and 6.12.111; compatibility with later 6.12 releases still requires testing.
+No version exclusion rule is used by DKMS. The shipped i915 tree is derived from Linux 6.12.107. Compilation has been verified against 6.12.107, 6.12.111 and 6.12.113; compatibility with later 6.12 releases still requires testing.
+Version 0.0.4 also builds against 6.12.113, whose backported DRM restore API
+adds a `force` argument. The wrapper Makefile detects both interfaces with
+Kbuild compile probes, regenerating the compatibility header for the selected
+kernel. Use this Makefile for external builds. See
+[the compatibility notes](docs/kernel-compatibility.md).

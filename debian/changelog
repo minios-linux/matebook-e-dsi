@@ -1,3 +1,14 @@
+matebook-e-dsi (0.0.4-0minios1) unstable; urgency=medium
+
+  * Fix DKMS compilation with the DRM fbdev restore API backported in
+    Linux 6.12.113, preserving the new force argument.
+  * Detect helper and callback signatures independently with target Kbuild
+    compile probes, retaining compatibility with older Linux 6.12 headers.
+  * Install compatibility probes with DKMS sources and run restore regression
+    tests for both API variants.
+
+ -- crims0n <crims0n@minios.dev>  Fri, 16 Oct 2026 18:44:02 +0300
+
 matebook-e-dsi (0.0.3-0minios1) unstable; urgency=medium
 
   * Backport missing DSI base-kernel fixes from the AUR Linux 7.2.3 reference:
