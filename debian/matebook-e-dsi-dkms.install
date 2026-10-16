@@ -1,3 +1,4 @@
 driver/Makefile usr/src/matebook-e-dsi-${env:DEB_VERSION_UPSTREAM}
+driver/compat usr/src/matebook-e-dsi-${env:DEB_VERSION_UPSTREAM}
 driver/drivers/gpu/drm/i915 usr/src/matebook-e-dsi-${env:DEB_VERSION_UPSTREAM}/drivers/gpu/drm
 driver/drivers/platform/x86/intel_ips.h usr/src/matebook-e-dsi-${env:DEB_VERSION_UPSTREAM}/drivers/platform/x86

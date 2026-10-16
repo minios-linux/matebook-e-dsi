@@ -6,6 +6,8 @@ upstream-aur/
 *.mod*
 *.symvers
 modules.order
+matebook_kernel_compat.h
+matebook_kernel_compat.h.tmp.*
 /debian/.debhelper/
 /debian/debhelper-build-stamp
 /debian/files

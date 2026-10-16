@@ -10,6 +10,8 @@ cp "$SRC/drivers/platform/x86/intel_ips.h" "$DEST/drivers/platform/x86/"
 patch --batch --fuzz=0 -d "$DEST" -p1 < "$REPO/patches/linux-6.12.107.patch"
 patch --batch --fuzz=0 -d "$DEST" -p1 < "$REPO/patches/dsi-dsc-1.1-rc-params.patch"
 patch --batch --fuzz=0 -d "$DEST" -p1 < "$REPO/patches/dsi-7.2-base-fixes.patch"
+patch --batch --fuzz=0 -d "$DEST" -p1 < "$REPO/patches/drm-fbdev-restore-compat.patch"
 cp "$REPO/Makefile" "$DEST/Makefile"
+cp -a "$REPO/driver/compat" "$DEST/compat"
 cp "$REPO/dkms.conf" "$DEST/dkms.conf"
 echo 'Prepared MateBook E DSI source for Linux 6.12.107.'

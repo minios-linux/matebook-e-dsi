@@ -53,6 +53,7 @@
 #include "intel_fbdev.h"
 #include "intel_fbdev_fb.h"
 #include "intel_frontbuffer.h"
+#include "matebook_kernel_compat.h"
 
 struct intel_fbdev {
 	struct drm_fb_helper helper;
@@ -555,7 +556,7 @@ static int intel_fbdev_output_poll_changed(struct drm_device *dev)
 	return 0;
 }
 
-static int intel_fbdev_restore_mode(struct drm_i915_private *dev_priv)
+static int intel_fbdev_restore_mode(struct drm_i915_private *dev_priv, bool force)
 {
 	struct intel_fbdev *ifbdev = dev_priv->display.fbdev.fbdev;
 	int ret;
@@ -566,7 +567,12 @@ static int intel_fbdev_restore_mode(struct drm_i915_private *dev_priv)
 	if (!ifbdev->vma)
 		return -ENOMEM;
 
+#if MATEBOOK_DRM_FB_HELPER_RESTORE_HAS_FORCE
+	ret = drm_fb_helper_restore_fbdev_mode_unlocked(&ifbdev->helper, force);
+#else
+	(void)force;
 	ret = drm_fb_helper_restore_fbdev_mode_unlocked(&ifbdev->helper);
+#endif
 	if (ret)
 		return ret;
 
@@ -592,12 +598,19 @@ static void intel_fbdev_client_unregister(struct drm_client_dev *client)
 	}
 }
 
+#if MATEBOOK_DRM_CLIENT_RESTORE_HAS_FORCE
+static int intel_fbdev_client_restore(struct drm_client_dev *client, bool force)
+#else
 static int intel_fbdev_client_restore(struct drm_client_dev *client)
+#endif
 {
 	struct drm_i915_private *dev_priv = to_i915(client->dev);
 	int ret;
 
-	ret = intel_fbdev_restore_mode(dev_priv);
+#if !MATEBOOK_DRM_CLIENT_RESTORE_HAS_FORCE
+	const bool force = false;
+#endif
+	ret = intel_fbdev_restore_mode(dev_priv, force);
 	if (ret)
 		return ret;
 
